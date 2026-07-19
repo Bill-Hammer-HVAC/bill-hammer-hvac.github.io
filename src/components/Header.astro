@@ -1,0 +1,106 @@
+---
+import { navigation } from '../data/navigation';
+import { site } from '../data/site';
+
+const pathname = Astro.url.pathname;
+const isActive = (href: string) => href === '/' ? pathname === '/' : pathname.startsWith(href);
+---
+
+<header class="site-header" data-site-header>
+  <div class="utility">
+    <div class="container utility__inner">
+      <span>Serving the South Bay since {site.establishedYear}</span>
+      <a href={`tel:${site.phoneUri}`} data-ga-event="phone_click" data-ga-placement="utility">Call {site.phoneDisplay}</a>
+    </div>
+  </div>
+  <div class="container header-main">
+    <a class="brand" href="/" aria-label={`${site.companyName}, home`}>
+      <span class="brand__mark" aria-hidden="true"><span></span></span>
+      <span><strong>Hammer</strong><small>Heating &amp; Air Conditioning</small></span>
+    </a>
+
+    <button class="menu-button" type="button" aria-label="Menu" aria-expanded="false" aria-controls="primary-navigation" data-menu-button>
+      <span class="menu-button__icon" aria-hidden="true"><span></span><span></span><span></span></span>
+    </button>
+
+    <nav id="primary-navigation" class="primary-nav" aria-label="Primary navigation" data-mobile-menu hidden>
+      <ul>
+        {navigation.map((item) => (
+          <li><a href={item.href} aria-current={isActive(item.href) ? 'page' : undefined}>{item.label}</a></li>
+        ))}
+      </ul>
+      <a class="button header-cta" href="/contact/" data-ga-event="estimate_cta_click" data-ga-placement="header">Request an estimate</a>
+      <a class="mobile-call" href={`tel:${site.phoneUri}`} data-ga-event="phone_click" data-ga-placement="mobile_menu">Call {site.phoneDisplay}</a>
+    </nav>
+    <span class="visually-hidden" role="status" aria-live="polite" data-menu-status></span>
+  </div>
+</header>
+
+<script>
+  const header = document.querySelector<HTMLElement>('[data-site-header]');
+  if (header) {
+    const button = header.querySelector<HTMLButtonElement>('[data-menu-button]');
+    const menu = header.querySelector<HTMLElement>('[data-mobile-menu]');
+    const status = header.querySelector<HTMLElement>('[data-menu-status]');
+    const desktop = window.matchMedia('(min-width: 56rem)');
+
+    if (button && menu && status) {
+      const setOpen = (open: boolean, restoreFocus = false) => {
+        const isDesktop = desktop.matches;
+        button.setAttribute('aria-expanded', String(open && !isDesktop));
+        menu.hidden = !isDesktop && !open;
+        status.textContent = isDesktop ? '' : `Navigation menu ${open ? 'opened' : 'closed'}.`;
+        if (restoreFocus && !isDesktop) button.focus();
+      };
+
+      setOpen(false);
+      button.addEventListener('click', () => setOpen(button.getAttribute('aria-expanded') !== 'true'));
+      menu.querySelectorAll('a').forEach((link) => link.addEventListener('click', () => setOpen(false)));
+      document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape' && button.getAttribute('aria-expanded') === 'true') setOpen(false, true);
+      });
+      desktop.addEventListener('change', () => setOpen(false));
+    }
+  }
+</script>
+
+<style>
+  .site-header { position: relative; z-index: 20; background: var(--color-white); box-shadow: 0 .2rem .8rem rgb(11 27 42 / .08); }
+  .utility { color: #eaf1f6; background: var(--color-navy-950); font-size: var(--step--1); }
+  .utility__inner { display: flex; min-height: 2.4rem; justify-content: space-between; align-items: center; gap: 1rem; }
+  .utility a { color: var(--color-white); font-weight: 800; }
+  .header-main { display: flex; min-height: 5.25rem; align-items: center; justify-content: space-between; gap: 1.25rem; }
+  .brand { display: flex; align-items: center; gap: .8rem; color: var(--color-navy-950); line-height: 1; text-decoration: none; }
+  .brand:hover { color: var(--color-navy-950); }
+  .brand strong { display: block; font-family: var(--font-display); font-size: 1.65rem; letter-spacing: -.02em; }
+  .brand small { display: block; margin-top: .3rem; color: var(--color-muted); font-size: .7rem; font-weight: 800; letter-spacing: .075em; text-transform: uppercase; }
+  .brand__mark { position: relative; width: 2.8rem; height: 2.8rem; border: .35rem solid var(--color-navy-800); border-radius: 50%; }
+  .brand__mark::before, .brand__mark::after, .brand__mark span { position: absolute; inset: .75rem -.4rem auto; height: .35rem; content: ''; background: var(--color-copper-600); transform: rotate(-45deg); }
+  .brand__mark::after { transform: rotate(45deg); }
+  .brand__mark span { inset: -.4rem .8rem; width: .35rem; height: 2.9rem; transform: none; }
+  .menu-button { display: inline-flex; width: 3rem; min-height: 3rem; align-items: center; justify-content: center; padding: .5rem; border: 1px solid var(--color-border); color: var(--color-navy-950); background: var(--color-white); cursor: pointer; }
+  .menu-button__icon { display: grid; gap: .24rem; }
+  .menu-button__icon span { width: 1.25rem; height: .14rem; background: currentColor; }
+  .primary-nav { position: absolute; top: 100%; right: 0; left: 0; padding: 1rem; border-top: 1px solid var(--color-border); background: var(--color-white); box-shadow: var(--shadow-lg); }
+  .primary-nav[hidden] { display: none; }
+  .primary-nav ul { display: grid; padding: 0; margin: 0 0 1rem; list-style: none; }
+  .primary-nav ul a { display: block; min-height: 3rem; padding: .65rem; color: var(--color-navy-950); font-weight: 750; text-decoration: none; }
+  .primary-nav ul a[aria-current='page'] { color: var(--color-copper-700); box-shadow: inset .2rem 0 var(--color-copper-600); }
+  .header-cta { width: 100%; }
+  .mobile-call { display: block; min-height: 3rem; padding: .8rem; margin-top: .5rem; font-weight: 800; text-align: center; }
+  @media (min-width: 56rem) {
+    .menu-button { display: none; }
+    .primary-nav, .primary-nav[hidden] { position: static; display: flex; padding: 0; align-items: center; gap: 1.25rem; border: 0; box-shadow: none; }
+    .primary-nav ul { display: flex; margin: 0; align-items: center; gap: .2rem; }
+    .primary-nav ul a { min-height: auto; padding: .75rem .55rem; font-size: .92rem; }
+    .primary-nav ul a[aria-current='page'] { box-shadow: inset 0 -.18rem var(--color-copper-600); }
+    .header-cta { width: auto; }
+    .mobile-call { display: none; }
+  }
+  @media (max-width: 27rem) {
+    .utility__inner span { display: none; }
+    .utility__inner { justify-content: center; }
+    .brand small { max-width: 9rem; line-height: 1.2; }
+    .brand__mark { display: none; }
+  }
+</style>

@@ -1,0 +1,6 @@
+---
+import { site } from '../data/site';
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+<BaseLayout title="Page Not Found | Hammer Heating and Air Conditioning" description="The requested page could not be found." noindex={true} canonicalPath="/404.html"><section class="section section--white"><div class="container error-page"><p class="eyebrow">Error 404</p><h1>That page could not be found</h1><p class="lede">The address may be outdated or typed incorrectly. Use the links below to continue.</p><div class="button-row"><a class="button" href="/">Return home</a><a class="button button--secondary" href={`tel:${site.phoneUri}`} data-ga-event="phone_click" data-ga-placement="404">Call {site.phoneDisplay}</a></div></div></section></BaseLayout>
+<style>.error-page { min-height: 28rem; display: grid; align-content: center; justify-items: start; }.error-page h1 { max-width: 45rem; }</style>

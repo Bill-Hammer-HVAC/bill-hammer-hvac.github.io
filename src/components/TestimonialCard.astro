@@ -1,0 +1,26 @@
+---
+interface Props { names: string; location: string; role?: string; }
+const { names, location, role } = Astro.props;
+---
+
+<figure class="quote-card">
+  <span class="quote-mark" aria-hidden="true">“</span>
+  <blockquote><slot /></blockquote>
+  <figcaption><strong>{names}</strong><span>{role ? `${role} · ` : ''}{location}</span></figcaption>
+</figure>
+
+<style>
+  .quote-card { position: relative; min-width: 0; margin: 0; padding: var(--space-6); border: 1px solid var(--color-border); background: var(--color-white); box-shadow: var(--shadow-sm); }
+  .quote-mark { position: absolute; top: .5rem; right: 1rem; color: var(--color-copper-100); font-family: Georgia, serif; font-size: 6rem; line-height: 1; }
+  blockquote { position: relative; margin: 0 0 var(--space-5); font-family: var(--font-display); font-size: 1.12rem; line-height: 1.55; }
+  blockquote :global(p:last-child) { margin-bottom: 0; }
+  figcaption { display: grid; padding-top: var(--space-4); border-top: 1px solid var(--color-border); }
+  figcaption strong { color: var(--color-navy-950); }
+  figcaption span { color: var(--color-muted); font-size: var(--step--1); }
+  @media (max-width: 40rem) {
+    .quote-card { align-self: start; padding: var(--space-4); }
+    .quote-mark { top: .25rem; right: .75rem; font-size: 4.5rem; }
+    blockquote { margin-bottom: var(--space-4); font-size: 1.05rem; line-height: 1.48; }
+    figcaption { padding-top: var(--space-3); }
+  }
+</style>

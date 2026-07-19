@@ -1,0 +1,19 @@
+---
+const measurementId = import.meta.env.PUBLIC_GA_MEASUREMENT_ID?.trim() ?? '';
+const isValid = /^G-[A-Z0-9]{6,15}$/.test(measurementId);
+---
+
+{isValid && (
+  <>
+    <script is:inline async src={`https://www.googletagmanager.com/gtag/js?id=${measurementId}`}></script>
+    <script is:inline define:vars={{ measurementId }}>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = window.gtag || function () { window.dataLayer.push(arguments); };
+      if (!window.__hammerGaInitialized) {
+        window.__hammerGaInitialized = true;
+        window.gtag('js', new Date());
+        window.gtag('config', measurementId);
+      }
+    </script>
+  </>
+)}

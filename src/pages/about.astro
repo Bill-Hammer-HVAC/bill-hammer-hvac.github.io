@@ -1,0 +1,25 @@
+---
+import { Image } from 'astro:assets';
+import { getEntry, render } from 'astro:content';
+import billHammer from '../assets/legacy/bill-hammer.jpg';
+import CallToAction from '../components/CallToAction.astro';
+import PageHero from '../components/PageHero.astro';
+import { site } from '../data/site';
+import BaseLayout from '../layouts/BaseLayout.astro';
+const page = await getEntry('pages', 'about');
+if (!page) throw new Error('Missing about content');
+const { Content } = await render(page);
+---
+<BaseLayout title={page.data.title} description={page.data.description} canonicalPath="/about/">
+  <PageHero eyebrow={page.data.eyebrow} heading={`${page.data.heading} in ${site.establishedYear}`} intro={page.data.intro} />
+  <section class="section section--white"><div class="container about-grid"><article class="prose"><Content /><h2>What is verified</h2><ul class="trust-list"><li>Founded by Bill Hammer in {site.establishedYear}</li><li>Serving the South Bay</li><li>Residential and commercial work listed on the original site</li><li>Free in-home estimates</li><li>Senior discounts and referrals upon request</li><li>{site.licenseLabel}</li></ul></article><figure><Image src={billHammer} alt="Bill Hammer beside an outdoor air-conditioning condenser" widths={[480, 720, 960]} sizes="(max-width: 48rem) 100vw, 42vw" format="webp" quality={80} /><figcaption>Bill Hammer, in a photograph published on the company’s original website.</figcaption></figure></div></section>
+  <CallToAction placement="about_bottom" />
+</BaseLayout>
+<style>
+  .about-grid { display: grid; grid-template-columns: 1.1fr .9fr; align-items: start; gap: var(--space-8); }
+  figure { margin: 0; border: .45rem solid var(--color-white); background: var(--color-white); box-shadow: var(--shadow-lg); }
+  figure :global(picture) { display: block; aspect-ratio: 4 / 3; }
+  figure :global(img) { width: 100%; height: 100%; object-fit: cover; object-position: center; }
+  figcaption { padding: var(--space-3); color: var(--color-muted); font-size: var(--step--1); }
+  @media (max-width: 48rem) { .about-grid { grid-template-columns: 1fr; gap: var(--space-5); } }
+</style>

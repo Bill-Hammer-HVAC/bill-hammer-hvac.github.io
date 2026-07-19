@@ -1,0 +1,49 @@
+---
+import { site } from '../data/site';
+
+interface Props { eyebrow?: string; heading: string; intro: string; }
+const { eyebrow, heading, intro } = Astro.props;
+---
+
+<section class="hero">
+  <div class="container hero__grid">
+    <div class="hero__content">
+      {eyebrow && <p class="eyebrow">{eyebrow}</p>}
+      <h1>{heading}</h1>
+      <p class="hero__lede">{intro}</p>
+      <div class="button-row">
+        <a class="button" href={`tel:${site.phoneUri}`} data-ga-event="phone_click" data-ga-placement="hero">Call {site.phoneDisplay}</a>
+        <a class="button button--secondary" href="/contact/" data-ga-event="estimate_cta_click" data-ga-placement="hero">Request a free estimate</a>
+      </div>
+      <p class="hero__note">Free in-home estimates · Senior discounts · Referrals upon request</p>
+    </div>
+    <div class="hero__visual" aria-hidden="true">
+      <div class="comfort-dial"><span>Comfort</span><i></i></div>
+      <div class="air-lines"><span></span><span></span><span></span></div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .hero { position: relative; overflow: hidden; color: #dce7ee; background: var(--color-navy-950); }
+  .hero::after { position: absolute; inset: auto -15% -13rem 25%; height: 22rem; border: 1px solid rgb(255 255 255 / .08); border-radius: 50%; content: ''; }
+  .hero__grid { display: grid; min-height: 38rem; grid-template-columns: minmax(0, 1.35fr) minmax(17rem, .65fr); align-items: center; gap: var(--space-7); padding-block: var(--space-8); }
+  .hero__content { position: relative; z-index: 2; }
+  .hero .eyebrow { color: #ffb398; }
+  .hero h1 { max-width: 48rem; margin-bottom: var(--space-5); color: var(--color-white); }
+  .hero__lede { max-width: 42rem; margin-bottom: var(--space-6); color: #ccd9e1; font-size: var(--step-1); }
+  .hero__note { margin: var(--space-5) 0 0; color: #aebfca; font-size: var(--step--1); font-weight: 700; }
+  .hero__visual { position: relative; min-height: 24rem; }
+  .comfort-dial { position: absolute; z-index: 2; top: 3rem; right: 2rem; display: grid; width: 15rem; height: 15rem; place-items: center; border: 1.2rem solid #e8edf0; border-right-color: var(--color-copper-600); border-bottom-color: var(--color-copper-600); border-radius: 50%; color: var(--color-white); background: var(--color-navy-800); box-shadow: var(--shadow-lg); transform: rotate(-18deg); }
+  .comfort-dial::before { position: absolute; inset: 1.4rem; border: 1px solid #628097; border-radius: 50%; content: ''; }
+  .comfort-dial span { font-family: var(--font-display); font-size: 1.4rem; transform: rotate(18deg); }
+  .comfort-dial i { position: absolute; width: .3rem; height: 4rem; background: var(--color-copper-100); transform: rotate(55deg) translateY(-1.2rem); transform-origin: bottom; }
+  .air-lines span { position: absolute; right: -4rem; display: block; width: 23rem; height: 5rem; border-top: .35rem solid rgb(255 255 255 / .12); border-radius: 50%; transform: rotate(-12deg); }
+  .air-lines span:nth-child(1) { top: 4rem; }
+  .air-lines span:nth-child(2) { top: 10rem; right: -7rem; }
+  .air-lines span:nth-child(3) { top: 16rem; right: -2rem; }
+  @media (max-width: 48rem) {
+    .hero__grid { min-height: auto; grid-template-columns: 1fr; padding-block: var(--space-7); }
+    .hero__visual { display: none; }
+  }
+</style>

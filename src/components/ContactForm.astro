@@ -1,0 +1,172 @@
+---
+import { site } from '../data/site';
+const configured = Boolean(site.formBackendUrl);
+---
+
+<div class="form-shell">
+  <form
+    class="contact-form"
+    action={site.formBackendUrl ?? '/contact/'}
+    method="POST"
+    data-contact-form
+    data-configured={String(configured)}
+  >
+    <div class="honeypot" aria-hidden="true">
+      <label for="company-website">Leave this field empty</label>
+      <input id="company-website" name="_honeypot" type="text" tabindex="-1" autocomplete="off" />
+    </div>
+
+    <div class="form-grid">
+      <div class="field">
+        <label for="name">Name <span aria-hidden="true">*</span></label>
+        <input id="name" name="name" type="text" autocomplete="name" required aria-describedby="name-error" />
+        <span class="field-error" id="name-error" data-error-for="name"></span>
+      </div>
+      <div class="field">
+        <label for="email">Email <span aria-hidden="true">*</span></label>
+        <input id="email" name="email" type="email" autocomplete="email" required aria-describedby="email-error" />
+        <span class="field-error" id="email-error" data-error-for="email"></span>
+      </div>
+      <div class="field">
+        <label for="phone">Phone <span aria-hidden="true">*</span></label>
+        <input id="phone" name="phone" type="tel" autocomplete="tel" required aria-describedby="phone-error" />
+        <span class="field-error" id="phone-error" data-error-for="phone"></span>
+      </div>
+      <div class="field">
+        <label for="service">Service needed <span class="optional">(optional)</span></label>
+        <select id="service" name="service">
+          <option value="">Select a service</option>
+          <option>New heating or air-conditioning installation</option>
+          <option>Furnace or condenser change-out</option>
+          <option>Service or repair</option>
+          <option>Remodel or new construction</option>
+          <option>Thermostat or comfort zoning</option>
+          <option>Wall heater or floor-furnace conversion</option>
+          <option>Other</option>
+        </select>
+      </div>
+      <div class="field field--full">
+        <label for="message">How can we help? <span aria-hidden="true">*</span></label>
+        <textarea id="message" name="message" rows="6" required aria-describedby="message-help message-error"></textarea>
+        <span class="field-help" id="message-help">Please do not include sensitive information.</span>
+        <span class="field-error" id="message-error" data-error-for="message"></span>
+      </div>
+    </div>
+
+    <p class="required-note"><span aria-hidden="true">*</span> Required field</p>
+    {!configured && <p class="config-warning" role="status">Online estimates are not configured yet. Please call or email Bill instead.</p>}
+    <div class="submit-row">
+      <button class="button" type="submit" disabled={!configured} data-submit-button>
+        <span data-button-label>Send estimate request</span>
+      </button>
+      <p>By submitting this form, you agree that Hammer Heating and Air Conditioning may contact you about your request. See the <a href="/privacy/">privacy policy</a>.</p>
+    </div>
+    <div class="form-status" role="status" aria-live="polite" tabindex="-1" hidden data-form-status></div>
+  </form>
+</div>
+
+<script>
+  import { sendAnalyticsEvent } from '../scripts/analytics';
+
+  const form = document.querySelector<HTMLFormElement>('[data-contact-form]');
+  if (form) {
+    // Native validation remains active without JavaScript; the enhancement takes
+    // responsibility for accessible inline messages once it loads.
+    form.noValidate = true;
+    const submitButton = form.querySelector<HTMLButtonElement>('[data-submit-button]');
+    const buttonLabel = form.querySelector<HTMLElement>('[data-button-label]');
+    const status = form.querySelector<HTMLElement>('[data-form-status]');
+    const controls = Array.from(form.querySelectorAll<HTMLInputElement | HTMLTextAreaElement>('input[required], textarea[required]'));
+
+    const errorMessage = (control: HTMLInputElement | HTMLTextAreaElement) => {
+      if (control.validity.valueMissing) return `${control.labels?.[0]?.textContent?.replace('*', '').trim() ?? 'This field'} is required.`;
+      if (control.validity.typeMismatch) return 'Enter a valid email address.';
+      return control.validationMessage;
+    };
+
+    const showFieldError = (control: HTMLInputElement | HTMLTextAreaElement) => {
+      const error = form.querySelector<HTMLElement>(`[data-error-for="${control.id}"]`);
+      if (!error) return;
+      const message = control.validity.valid ? '' : errorMessage(control);
+      error.textContent = message;
+      if (message) control.setAttribute('aria-invalid', 'true');
+      else control.removeAttribute('aria-invalid');
+    };
+
+    controls.forEach((control) => {
+      control.addEventListener('invalid', (event) => { event.preventDefault(); showFieldError(control); });
+      control.addEventListener('input', () => showFieldError(control));
+      control.addEventListener('blur', () => showFieldError(control));
+    });
+
+    form.addEventListener('submit', async (event) => {
+      if (!form.checkValidity()) {
+        event.preventDefault();
+        controls.forEach(showFieldError);
+        controls.find((control) => !control.validity.valid)?.focus();
+        return;
+      }
+      if (form.dataset.configured !== 'true' || !submitButton || !buttonLabel || !status) return;
+
+      event.preventDefault();
+      submitButton.disabled = true;
+      buttonLabel.textContent = 'Sending…';
+      status.hidden = true;
+      status.className = 'form-status';
+
+      try {
+        const response = await fetch(form.action, {
+          method: 'POST',
+          body: new FormData(form),
+          headers: { Accept: 'application/json' },
+        });
+        if (!response.ok) throw new Error(`Submission failed with status ${response.status}`);
+
+        let responseMessage = '';
+        const contentType = response.headers.get('content-type') ?? '';
+        if (contentType.includes('application/json')) {
+          const body: unknown = await response.json().catch(() => null);
+          if (body && typeof body === 'object' && 'submission_text' in body && typeof body.submission_text === 'string') {
+            responseMessage = body.submission_text;
+          }
+        }
+        status.textContent = responseMessage || 'Your request was sent. Thank you—Bill will follow up using the contact details you provided.';
+        status.classList.add('form-status--success');
+        status.hidden = false;
+        form.reset();
+        controls.forEach(showFieldError);
+        sendAnalyticsEvent('contact_form_submit', { form_name: 'estimate_request' });
+      } catch {
+        status.textContent = 'We could not send your request. Your information is still in the form. Please try again or call Bill directly.';
+        status.classList.add('form-status--error');
+        status.hidden = false;
+      } finally {
+        submitButton.disabled = false;
+        buttonLabel.textContent = 'Send estimate request';
+        if (!status.hidden) status.focus();
+      }
+    });
+  }
+</script>
+
+<style>
+  .form-shell { padding: var(--space-6); border: 1px solid var(--color-border); background: var(--color-white); box-shadow: var(--shadow-sm); }
+  .contact-form { position: relative; }
+  .honeypot { position: absolute; left: -10000px; width: 1px; height: 1px; overflow: hidden; }
+  .form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-5); }
+  .field { display: grid; align-content: start; }
+  .field--full { grid-column: 1 / -1; }
+  label { margin-bottom: .35rem; color: var(--color-navy-950); font-weight: 800; }
+  .optional, .field-help { color: var(--color-muted); font-size: var(--step--1); font-weight: 500; }
+  input, select, textarea { width: 100%; min-height: 3rem; padding: .7rem .8rem; border: 1px solid #8a969f; border-radius: var(--radius-sm); color: var(--color-ink); background: var(--color-white); }
+  textarea { min-height: 9rem; resize: vertical; }
+  [aria-invalid='true'] { border-color: var(--color-error); box-shadow: 0 0 0 1px var(--color-error); }
+  .field-error { min-height: 1.5rem; margin-top: .2rem; color: var(--color-error); font-size: .82rem; font-weight: 700; }
+  .required-note { color: var(--color-muted); font-size: var(--step--1); }
+  .config-warning, .form-status { padding: var(--space-4); border-left: .3rem solid #d59228; background: #fff6df; }
+  .form-status--success { border-color: var(--color-success); color: var(--color-success); background: #e8f6ee; }
+  .form-status--error { border-color: var(--color-error); color: var(--color-error); background: #fff0ef; }
+  .submit-row { display: flex; align-items: center; gap: var(--space-5); }
+  .submit-row p { max-width: 38rem; margin: 0; color: var(--color-muted); font-size: var(--step--1); }
+  @media (max-width: 38rem) { .form-shell { padding: var(--space-4); } .form-grid { grid-template-columns: 1fr; gap: var(--space-3); } .field--full { grid-column: auto; } .submit-row { display: block; } .submit-row p { margin-top: var(--space-3); } }
+</style>

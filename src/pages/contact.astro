@@ -1,0 +1,18 @@
+---
+import ContactForm from '../components/ContactForm.astro';
+import PageHero from '../components/PageHero.astro';
+import { site, formatAddress } from '../data/site';
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+<BaseLayout title="Contact Hammer Heating and Air Conditioning" description="Call Bill Hammer or send an online request for a free in-home heating or air-conditioning estimate in the South Bay." canonicalPath="/contact/">
+  <PageHero eyebrow="Contact Bill" heading="Request a free in-home estimate" intro="Tell us what you need help with. For the quickest direct conversation, call Bill using the number below." />
+  <section class="section section--white"><div class="container contact-grid"><aside aria-labelledby="direct-heading"><h2 id="direct-heading">Contact directly</h2><dl><div><dt>Phone</dt><dd><a href={`tel:${site.phoneUri}`} data-ga-event="phone_click" data-ga-placement="contact">{site.phoneDisplay}</a></dd></div><div><dt>Email</dt><dd><a href={`mailto:${site.email}`}>{site.email}</a></dd></div><div><dt>Fax</dt><dd>{site.faxDisplay}</dd></div><div><dt>Address</dt><dd>{formatAddress(site.address)}</dd></div><div><dt>License</dt><dd>{site.licenseLabel}</dd></div></dl></aside><div><h2>Estimate request</h2><ContactForm /></div></div></section>
+</BaseLayout>
+<style>
+  .contact-grid { display: grid; grid-template-columns: .65fr 1.35fr; align-items: start; gap: var(--space-7); }
+  dl { margin-bottom: var(--space-6); }
+  dl div { padding-block: var(--space-3); border-bottom: 1px solid var(--color-border); }
+  dt { color: var(--color-muted); font-size: var(--step--1); font-weight: 800; text-transform: uppercase; }
+  dd { margin: .15rem 0 0; }
+  @media (max-width: 52rem) { .contact-grid { grid-template-columns: 1fr; } }
+</style>

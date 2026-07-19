@@ -1,0 +1,24 @@
+---
+import { site } from '../data/site';
+interface Props { heading?: string; copy?: string; placement?: string; }
+const { heading = 'Talk with Bill about your heating or cooling project', copy = 'Call directly or send a few details to request a free in-home estimate.', placement = 'section' } = Astro.props;
+---
+
+<section class="cta section--navy">
+  <div class="container cta__inner">
+    <div><p class="eyebrow">Ready to get started?</p><h2>{heading}</h2><p>{copy}</p></div>
+    <div class="button-row">
+      <a class="button button--light" href={`tel:${site.phoneUri}`} data-ga-event="phone_click" data-ga-placement={`${placement}_cta`}>Call {site.phoneDisplay}</a>
+      <a class="button" href="/contact/" data-ga-event="estimate_cta_click" data-ga-placement={placement}>Request an estimate</a>
+    </div>
+  </div>
+</section>
+
+<style>
+  .cta { padding-block: var(--space-7); }
+  .cta__inner { display: flex; align-items: center; justify-content: space-between; gap: var(--space-7); }
+  .cta h2 { max-width: 43rem; margin-bottom: var(--space-3); font-size: var(--step-2); }
+  .cta p:last-child { margin-bottom: 0; color: #cbd8e0; }
+  .cta .button-row { flex: 0 0 auto; }
+  @media (max-width: 48rem) { .cta__inner { display: block; } .cta .button-row { margin-top: var(--space-5); } }
+</style>

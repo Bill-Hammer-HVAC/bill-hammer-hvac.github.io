@@ -1,0 +1,37 @@
+---
+import Footer from '../components/Footer.astro';
+import GoogleAnalytics from '../components/GoogleAnalytics.astro';
+import Header from '../components/Header.astro';
+import SeoHead from '../components/SeoHead.astro';
+import '../styles/global.css';
+
+interface Props {
+  title?: string;
+  description?: string;
+  canonicalPath?: string;
+  noindex?: boolean;
+}
+const props = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="theme-color" content="#10273b" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <SeoHead {...props} />
+    <GoogleAnalytics />
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">Skip to main content</a>
+    <Header />
+    <main id="main-content" tabindex="-1"><slot /></main>
+    <Footer />
+    <script>
+      import { bindAnalyticsEvents } from '../scripts/analytics';
+      bindAnalyticsEvents();
+    </script>
+  </body>
+</html>

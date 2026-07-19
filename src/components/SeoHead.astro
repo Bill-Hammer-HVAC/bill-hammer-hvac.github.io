@@ -1,0 +1,54 @@
+---
+import { site, formatAddress } from '../data/site';
+
+interface Props {
+  title?: string;
+  description?: string;
+  canonicalPath?: string;
+  noindex?: boolean;
+}
+
+const {
+  title = site.defaultSeo.title,
+  description = site.defaultSeo.description,
+  canonicalPath = Astro.url.pathname,
+  noindex = false,
+} = Astro.props;
+const canonicalUrl = new URL(canonicalPath, Astro.site);
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'HVACBusiness',
+  name: site.companyName,
+  url: new URL('/', Astro.site).href,
+  telephone: site.phoneUri,
+  email: site.email,
+  foundingDate: String(site.establishedYear),
+  areaServed: site.serviceAreas.map((name) => ({ '@type': 'Place', name })),
+  address: {
+    '@type': 'PostalAddress',
+    ...site.address,
+  },
+  identifier: {
+    '@type': 'PropertyValue',
+    name: 'License',
+    value: site.licenseNumber,
+  },
+  description: site.defaultSeo.description,
+};
+---
+
+<title>{title}</title>
+<meta name="description" content={description} />
+<meta name="robots" content={noindex ? 'noindex, follow' : 'index, follow, max-image-preview:large'} />
+<link rel="canonical" href={canonicalUrl} />
+<link rel="sitemap" href="/sitemap-index.xml" />
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content={site.companyName} />
+<meta property="og:title" content={title} />
+<meta property="og:description" content={description} />
+<meta property="og:url" content={canonicalUrl} />
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:title" content={title} />
+<meta name="twitter:description" content={description} />
+<meta name="geo.placename" content={formatAddress(site.address)} />
+{!noindex && <script is:inline type="application/ld+json" set:html={JSON.stringify(jsonLd)} />}

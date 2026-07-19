@@ -1,0 +1,26 @@
+---
+import { Image } from 'astro:assets';
+import { getCollection, render } from 'astro:content';
+import condenser from '../assets/legacy/condenser-installation.jpg';
+import furnace from '../assets/legacy/furnace-installation.jpg';
+import CallToAction from '../components/CallToAction.astro';
+import PageHero from '../components/PageHero.astro';
+import ServiceCard from '../components/ServiceCard.astro';
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+const services = (await getCollection('services')).sort((a, b) => a.data.order - b.data.order);
+const rendered = await Promise.all(services.map(async (item) => ({ item, Content: (await render(item)).Content })));
+---
+<BaseLayout title="HVAC Services | Hammer Heating and Air Conditioning" description="Heating and air-conditioning installations, change-outs, repairs, thermostats, wall heaters, and related HVAC services in the South Bay." canonicalPath="/services/">
+  <PageHero eyebrow="Heating and cooling" heading="HVAC services for South Bay properties" intro="Hammer’s established service list covers new systems, equipment replacement, repairs, controls, and heating needs. Call if you are unsure which category fits your project." />
+  <section class="section section--white" aria-labelledby="service-list-heading"><div class="container"><h2 id="service-list-heading" class="visually-hidden">Service list</h2><div class="grid grid--2">{rendered.map(({ item, Content }) => <ServiceCard title={item.data.title} summary={item.data.summary} icon={item.data.icon}><Content /></ServiceCard>)}</div></div></section>
+  <section class="section section--sand" aria-labelledby="work-heading"><div class="container"><p class="eyebrow">From the original Hammer website</p><h2 id="work-heading">Past installation work</h2><p class="lede">These company-owned photographs appeared on Hammer’s previous website. They are retained here as a record of past work, not as a statement about current equipment brands.</p><div class="work-grid"><figure><Image src={furnace} alt="A furnace and ductwork installation in an attic" widths={[480, 720, 960]} sizes="(max-width: 45rem) 100vw, 50vw" format="webp" quality={78} loading="lazy" /><figcaption>Heating equipment installation</figcaption></figure><figure><Image src={condenser} alt="An outdoor air-conditioning condenser installed beside a house" widths={[360, 540, 720]} sizes="(max-width: 45rem) 100vw, 50vw" format="webp" quality={78} loading="lazy" /><figcaption>Outdoor condenser installation</figcaption></figure></div></div></section>
+  <CallToAction heading="Have a service question? Call Bill." placement="services_bottom" />
+</BaseLayout>
+<style>
+  .work-grid { display: grid; margin-top: var(--space-6); grid-template-columns: 1.3fr .7fr; gap: var(--space-5); }
+  figure { margin: 0; background: var(--color-white); box-shadow: var(--shadow-sm); }
+  figure :global(img) { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; }
+  figcaption { padding: var(--space-3) var(--space-4); color: var(--color-muted); font-size: var(--step--1); }
+  @media (max-width: 42rem) { .work-grid { grid-template-columns: 1fr; } }
+</style>
