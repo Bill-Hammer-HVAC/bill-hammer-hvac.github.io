@@ -9,6 +9,6 @@ const rendered = await Promise.all(testimonials.map(async (item) => ({ item, Con
 ---
 <BaseLayout title="Customer Testimonials | Hammer Heating and Air Conditioning" description="Read customer testimonials preserved from the original Hammer Heating and Air Conditioning website." canonicalPath="/testimonials/">
   <PageHero eyebrow="Customer experiences" heading="Testimonials from South Bay customers" intro="These statements are preserved from Hammer Heating and Air Conditioning’s original website. Names and locations are shown as they appeared there; no star ratings have been added." />
-  <section class="section section--sand"><div class="container"><div class="grid grid--2">{rendered.map(({ item, Content }) => <TestimonialCard names={item.data.names} location={item.data.location} role={item.data.role}><Content /></TestimonialCard>)}</div></div></section>
+  <section class="section section--sand"><div class="container"><div class="grid grid--2 testimonial-grid">{rendered.map(({ item, Content }) => <TestimonialCard names={item.data.names} location={item.data.location} role={item.data.role}><Content /></TestimonialCard>)}</div></div></section>
   <CallToAction placement="testimonials_bottom" />
 </BaseLayout>
