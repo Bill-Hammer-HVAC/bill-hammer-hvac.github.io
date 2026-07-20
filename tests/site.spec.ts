@@ -64,6 +64,8 @@ test('enhanced contact form handles success and emits a safe analytics event', a
   const status = page.locator('[data-form-status]');
   await expect(status).toContainText('Thanks for contacting Hammer.');
   await expect(status).toBeFocused();
+  await expect(page.locator('[data-contact-form]')).toBeHidden();
+  await expect(page.getByLabel('Name *')).toBeHidden();
   const events = await page.evaluate(() => window.capturedEvents);
   expect(events?.some((event) => event[0] === 'event' && event[1] === 'contact_form_submit')).toBeTruthy();
 });
