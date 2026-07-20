@@ -61,8 +61,8 @@ const configured = Boolean(site.formBackendUrl);
       </button>
       <p>By submitting this form, you agree that Hammer Heating and Air Conditioning may contact you about your request. See the <a href="/privacy/">privacy policy</a>.</p>
     </div>
-    <div class="form-status" role="status" aria-live="polite" tabindex="-1" hidden data-form-status></div>
   </form>
+  <div class="form-status" role="status" aria-live="polite" tabindex="-1" hidden data-form-status></div>
 </div>
 
 <script>
@@ -75,7 +75,7 @@ const configured = Boolean(site.formBackendUrl);
     form.noValidate = true;
     const submitButton = form.querySelector<HTMLButtonElement>('[data-submit-button]');
     const buttonLabel = form.querySelector<HTMLElement>('[data-button-label]');
-    const status = form.querySelector<HTMLElement>('[data-form-status]');
+    const status = form.parentElement?.querySelector<HTMLElement>('[data-form-status]');
     const controls = Array.from(form.querySelectorAll<HTMLInputElement | HTMLTextAreaElement>('input[required], textarea[required]'));
 
     const errorMessage = (control: HTMLInputElement | HTMLTextAreaElement) => {
@@ -133,8 +133,7 @@ const configured = Boolean(site.formBackendUrl);
         status.textContent = responseMessage || 'Your request was sent. Thank you—Bill will follow up using the contact details you provided.';
         status.classList.add('form-status--success');
         status.hidden = false;
-        form.reset();
-        controls.forEach(showFieldError);
+        form.hidden = true;
         sendAnalyticsEvent('contact_form_submit', { form_name: 'estimate_request' });
       } catch {
         status.textContent = 'We could not send your request. Your information is still in the form. Please try again or call Bill directly.';

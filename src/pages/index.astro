@@ -63,7 +63,7 @@ const renderedTestimonials = await Promise.all(testimonials.map(async (item) => 
     <div class="container">
       <p class="eyebrow">From longtime customers</p>
       <div class="section-heading"><h2 id="testimonials-heading">Customer testimonials</h2><a class="text-link" href="/testimonials/">Read all testimonials</a></div>
-      <div class="grid grid--3">
+      <div class="grid grid--3 testimonial-grid">
         {renderedTestimonials.map(({ item, Content }) => <TestimonialCard names={item.data.names} location={item.data.location} role={item.data.role}><Content /></TestimonialCard>)}
       </div>
     </div>
